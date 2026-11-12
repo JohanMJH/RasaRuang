@@ -1,0 +1,9 @@
+{
+  "name": "RasaRuang Self-Order",
+  "short_name": "RasaRuang",
+  "start_url": "./index.html?table=08",
+  "display": "standalone",
+  "background_color": "#F6EEE0",
+  "theme_color": "#4A2C1D",
+  "icons": [{ "src": "assets/logo.jpg", "sizes": "1024x682", "type": "image/jpeg" }]
+}

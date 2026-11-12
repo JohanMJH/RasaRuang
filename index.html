@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#4A2C1D" />
+  <meta name="description" content="RasaRuang Everyday Dining — Pesan langsung dari meja Anda. Scan, pilih menu, bayar, dan pesanan diantar ke meja." />
+  <title>RasaRuang Self-Order · Dine-In</title>
+  <link rel="icon" href="assets/logo.jpg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-frame" id="app">
+    <!-- ============ LAYAR 1: KATALOG MENU ============ -->
+    <section class="view" id="view-menu" data-view="menu">
+      <header class="topbar">
+        <div class="brand-logo" aria-label="RasaRuang Everyday Dining">
+          <img src="assets/logo.jpg" alt="RasaRuang Everyday Dining" />
+        </div>
+        <div class="table-pill" title="Nomor meja dari hasil scan QR">
+          <span class="dot"></span>
+          <span>Meja #<b class="js-table">08</b> • Dine-In</span>
+        </div>
+      </header>
+
+      <div class="greeting">
+        <h1 class="serif" id="greeting-title">Selamat datang 👋</h1>
+        <p class="outlet-info">
+          <span class="open-badge">Buka</span>
+          <span>10.00 – 22.00 · RasaRuang Outlet Utama</span>
+        </p>
+      </div>
+
+      <div class="search-wrap">
+        <label class="search">
+          <span class="icon" data-icon="search"></span>
+          <input id="search-input" type="search" placeholder="Cari ayam geprek, kopi susu, atau camilan..." autocomplete="off" />
+          <button class="search-clear hidden" id="search-clear" aria-label="Hapus pencarian"><span data-icon="x"></span></button>
+        </label>
+      </div>
+
+      <div class="banner" id="promo-banner">
+        <div class="banner-text">
+          <span class="banner-eyebrow">PROMO SETIAP HARI</span>
+          <h2 class="serif">Paket Hemat Ruang</h2>
+          <p>Rice Bowl + Minuman<br />mulai <b>Rp 28.000</b></p>
+          <button class="banner-btn" data-scroll-to="paket">Lihat Paket <span data-icon="arrow-right"></span></button>
+        </div>
+        <div class="banner-art" aria-hidden="true">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <path d="M52 22c-6 6 6 10 0 18M64 18c-6 6 6 10 0 18M76 22c-6 6 6 10 0 18" fill="none" stroke="#F6EEE0" stroke-width="3.5" stroke-linecap="round" opacity=".85"/>
+            <ellipse cx="64" cy="62" rx="40" ry="10" fill="#FAF6F0"/>
+            <circle cx="44" cy="58" r="3" fill="#E6D7C3"/><circle cx="58" cy="55" r="3" fill="#E6D7C3"/><circle cx="72" cy="57" r="3" fill="#E6D7C3"/><circle cx="84" cy="59" r="3" fill="#E6D7C3"/>
+            <path d="M22 64h84c0 22-18 38-42 38S22 86 22 64z" fill="#C87D32"/>
+            <path d="M8 74c30-10 60-12 104-6" fill="none" stroke="#F6EEE0" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+          </svg>
+        </div>
+      </div>
+
+      <nav class="cat-bar" id="cat-bar" aria-label="Kategori menu">
+        <div class="cat-scroll" id="cat-scroll"></div>
+      </nav>
+
+      <main class="catalog" id="catalog"></main>
+
+      <div class="empty-search hidden" id="empty-search">
+        <div class="empty-emoji">🍚</div>
+        <h3>Menu tidak ditemukan</h3>
+        <p>Coba kata kunci lain, misalnya “katsu” atau “kopi”.</p>
+      </div>
+
+      <footer class="catalog-footer">
+        <p>Harga belum termasuk PB1 10%. Pesanan diantar langsung ke meja Anda.</p>
+        <p class="muted">© RasaRuang Everyday Dining</p>
+      </footer>
+    </section>
+
+    <!-- ============ LAYAR 3: CHECKOUT ============ -->
+    <section class="view hidden" id="view-checkout" data-view="checkout">
+      <header class="subbar">
+        <button class="icon-btn" data-nav="menu" aria-label="Kembali"><span data-icon="chevron-left"></span></button>
+        <h2>Ringkasan Pesanan</h2>
+        <span class="subbar-spacer"></span>
+      </header>
+
+      <div class="page-body">
+        <div class="info-box">
+          <span class="info-icon" data-icon="armchair"></span>
+          <div>
+            <b>Pesanan Makan di Tempat (Dine-In)</b>
+            <p>Diantar ke <b>Meja #<span class="js-table">08</span></b></p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Daftar Pesanan</h3>
+            <span class="muted small" id="checkout-count">0 item</span>
+          </div>
+          <div id="checkout-items"></div>
+          <button class="add-more" data-nav="menu"><span data-icon="plus"></span> Tambah Menu Lain</button>
+        </div>
+
+        <form class="card" id="guest-form" novalidate>
+          <div class="card-head">
+            <h3>Data Pemesan</h3>
+            <span class="muted small">Tanpa login</span>
+          </div>
+          <div class="field">
+            <label for="guest-name">Nama Pemesan <span class="req">*</span></label>
+            <input id="guest-name" name="name" type="text" placeholder="Contoh: Budi" autocomplete="given-name" maxlength="30" />
+            <small class="hint">Untuk memanggil Anda saat pesanan diantar.</small>
+            <small class="error-msg"></small>
+          </div>
+          <div class="field">
+            <label for="guest-phone">Nomor WhatsApp <span class="req">*</span></label>
+            <div class="phone-input">
+              <span class="phone-prefix">🇮🇩</span>
+              <input id="guest-phone" name="phone" type="tel" inputmode="numeric" placeholder="0812xxxxxxxx" autocomplete="tel" maxlength="15" />
+            </div>
+            <small class="hint">Nota digital akan dikirim ke nomor ini.</small>
+            <small class="error-msg"></small>
+          </div>
+        </form>
+
+        <div class="card">
+          <div class="card-head"><h3>Rincian Pembayaran</h3></div>
+          <div class="price-rows" id="checkout-prices"></div>
+        </div>
+      </div>
+
+      <div class="sticky-footer">
+        <div class="footer-total">
+          <span class="muted small">Total Pembayaran</span>
+          <b id="checkout-total-footer">Rp 0</b>
+        </div>
+        <button class="btn-primary" id="to-payment-btn">Pilih Pembayaran <span data-icon="arrow-right"></span></button>
+      </div>
+    </section>
+
+    <!-- ============ LAYAR 4a: METODE PEMBAYARAN ============ -->
+    <section class="view hidden" id="view-payment" data-view="payment">
+      <header class="subbar">
+        <button class="icon-btn" data-nav="checkout" aria-label="Kembali"><span data-icon="chevron-left"></span></button>
+        <h2>Pembayaran</h2>
+        <span class="subbar-spacer"></span>
+      </header>
+
+      <div class="page-body">
+        <div class="pay-summary">
+          <span>Total Tagihan</span>
+          <b id="pay-total">Rp 0</b>
+          <small><span class="js-items-count">0</span> item · Meja #<span class="js-table">08</span> · a.n. <span id="pay-name">-</span></small>
+        </div>
+
+        <div id="pay-methods"></div>
+
+        <p class="secure-note"><span data-icon="shield"></span> Pembayaran aman & terenkripsi · Simulasi prototipe</p>
+      </div>
+
+      <div class="sticky-footer">
+        <button class="btn-primary block" id="pay-now-btn">Bayar Sekarang · <span id="pay-now-amount">Rp 0</span></button>
+      </div>
+    </section>
+
+    <!-- ============ LAYAR 4c: STATUS PESANAN ============ -->
+    <section class="view hidden" id="view-status" data-view="status">
+      <div class="page-body status-body">
+        <div class="success-hero">
+          <div class="check-anim">
+            <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="none"/><path fill="none" d="M15 27l7 7 15-16"/></svg>
+          </div>
+          <h2 class="serif">Pembayaran Berhasil!</h2>
+          <p>Terima kasih, <b id="status-name">Kak</b>. Pesanan Anda sedang kami proses.</p>
+        </div>
+
+        <div class="order-ticket">
+          <div class="ticket-row">
+            <div>
+              <span class="muted small">Nomor Pesanan</span>
+              <b class="order-no" id="status-order-no">#RR-084</b>
+            </div>
+            <div class="ticket-table">
+              <span class="muted small">Meja</span>
+              <b>#<span id="status-table">08</span></b>
+            </div>
+          </div>
+          <div class="ticket-divider"></div>
+          <div class="ticket-meta" id="status-meta"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Status Pesanan</h3>
+            <span class="live-badge"><span class="dot"></span> Live</span>
+          </div>
+          <ol class="stepper" id="status-stepper"></ol>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Detail Pesanan</h3></div>
+          <div id="status-items"></div>
+          <div class="price-rows" id="status-prices"></div>
+        </div>
+
+        <div class="status-actions">
+          <button class="btn-secondary block" id="download-receipt-btn"><span data-icon="download"></span> Unduh Struk Digital</button>
+          <button class="btn-primary block" id="new-order-btn"><span data-icon="utensils"></span> Pesan Lagi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FLOATING CART BAR ============ -->
+    <div class="cart-bar" id="cart-bar" role="button" tabindex="0" aria-label="Lihat keranjang">
+      <div class="cart-bar-left">
+        <span class="cart-icon"><span data-icon="shopping-bag"></span><i id="cart-badge">0</i></span>
+        <div>
+          <small id="cart-count">0 Item</small>
+          <b id="cart-total">Rp 0</b>
+        </div>
+      </div>
+      <span class="cart-bar-cta">Lanjut Bayar <span data-icon="arrow-right"></span></span>
+    </div>
+
+    <!-- ============ LAYAR 2: BOTTOM SHEET KUSTOMISASI ============ -->
+    <div class="overlay" id="sheet-overlay"></div>
+    <div class="sheet" id="product-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet-scroll" id="sheet-scroll">
+        <div class="sheet-hero">
+          <div class="sheet-img" id="sheet-img"></div>
+          <button class="sheet-close" id="sheet-close" aria-label="Tutup"><span data-icon="x"></span></button>
+          <span class="sheet-handle"></span>
+        </div>
+        <div class="sheet-info">
+          <div class="sheet-badges" id="sheet-badges"></div>
+          <h3 id="sheet-title">Nama Menu</h3>
+          <p id="sheet-desc">Deskripsi</p>
+          <b class="sheet-price" id="sheet-price">Rp 0</b>
+        </div>
+        <div id="sheet-options"></div>
+        <div class="opt-group">
+          <div class="opt-head">
+            <h4>Catatan Khusus</h4>
+            <span class="tag-optional">Opsional</span>
+          </div>
+          <textarea id="sheet-note" rows="3" maxlength="120" placeholder="Contoh: Daun bawang dipisah, kuah saus agak banyak..."></textarea>
+          <small class="char-count"><span id="note-count">0</span>/120</small>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <div class="qty-stepper">
+          <button id="qty-minus" aria-label="Kurangi"><span data-icon="minus"></span></button>
+          <span id="qty-value">1</span>
+          <button id="qty-plus" aria-label="Tambah"><span data-icon="plus"></span></button>
+        </div>
+        <button class="btn-primary grow" id="sheet-add-btn">Tambah ke Pesanan - Rp 0</button>
+      </div>
+    </div>
+
+    <!-- ============ LAYAR 4b: MODAL MENUNGGU PEMBAYARAN ============ -->
+    <div class="overlay" id="pay-overlay"></div>
+    <div class="sheet pay-sheet" id="pay-sheet" role="dialog" aria-modal="true">
+      <div class="sheet-scroll">
+        <div class="pay-sheet-head">
+          <span class="sheet-handle static"></span>
+          <button class="icon-btn" id="pay-sheet-close" aria-label="Tutup"><span data-icon="x"></span></button>
+        </div>
+        <div id="pay-sheet-body"></div>
+      </div>
+    </div>
+
+    <!-- Konfirmasi hapus / toast -->
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
